@@ -1,0 +1,27 @@
+router ospf {{ ospf_process }} vrf {{ vrf_name }}
+ router-id {{ router_id }}
+{% for net in networks %}
+ network {{ net.ip }} {{ net.wildcard }} area {{ net.area }}
+{% endfor %}
+ default-information originate
+exit
+interface loopback0
+ vrf forwarding {{ vrf_name }}
+ ip address {{ loopback_ip }} 255.255.255.255
+exit
+ip route vrf {{ vrf_name }} {{ mgmt_net }} {{ mgmt_mask }} Null0
+ip route vrf {{ vrf_name }} 0.0.0.0 0.0.0.0 dhcp
+ip access-list standard {{ nat_acl_name }}
+{% for net in nat_networks %}
+ permit {{ net.ip }} {{ net.wildcard }}
+{% endfor %}
+exit
+interface {{ nat_outside_intf }}
+ ip nat outside
+exit
+{% for intf in nat_inside_intfs %}
+interface {{ intf }}
+ ip nat inside
+exit
+{% endfor %}
+ip nat inside source list {{ nat_acl_name }} interface {{ nat_outside_intf }} overload

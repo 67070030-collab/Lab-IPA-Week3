@@ -1,0 +1,9 @@
+vlan {{ vlan_id }}
+ name {{ vlan_name }}
+exit
+{% for intf in interfaces %}
+interface {{ intf }}
+ switchport mode access
+ switchport access vlan {{ vlan_id }}
+{% endfor %}
+exit

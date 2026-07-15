@@ -1,0 +1,10 @@
+router ospf {{ ospf_process }} vrf {{ vrf_name }}
+ router-id {{ router_id }}
+{% for net in networks %}
+ network {{ net.ip }} {{ net.wildcard }} area {{ net.area }}
+{% endfor %}
+exit
+interface loopback0
+ vrf forwarding {{ vrf_name }}
+ ip address {{ loopback_ip }} 255.255.255.255
+exit
